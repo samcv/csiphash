@@ -2,15 +2,14 @@
 #include <stdint.h>
 #include <assert.h>
 #include <sys/time.h>
-
+#include "csiphash.h"
 uint64_t gettime_ns() {
-        struct timeval tv;
+	struct timeval tv;
 	gettimeofday(&tv, NULL);
-        return (uint64_t)tv.tv_sec * 1000000000ULL + tv.tv_usec * 1000ULL;
+	return (uint64_t)tv.tv_sec * 1000000000ULL + tv.tv_usec * 1000ULL;
 }
 
 
-uint64_t siphash24(const char *in, unsigned long inlen, const char k[16]);
 
 #define REPEATS 1
 
@@ -38,6 +37,7 @@ int main() {
 	int i;
 	char key[16] = {0,1,2,3,4,5,6,7,8,9,0xa,0xb,0xc,0xd,0xe,0xf};
 	char plaintext[64];
+	uint32_t Grapheme32[9] = { 171, 72, 69, 76, 76, 79, 9829, 9826, 187  };
 	for (i=0; i<64; i++) plaintext[i] = i;
 
 
@@ -46,11 +46,12 @@ int main() {
 	t0 = gettime_ns();
 	for (j=0; j<REPEATS; j++){
 		for (i=0; i<64; i++) {
-			assert(siphash24(plaintext, i, key) == vectors[i]);
+			assert(siphash24(plaintext, i, (uint64_t*)key) == vectors[i]);
 		}
 	}
+	assert(siphash24(Grapheme32, 9, (uint64_t*)key) == 3096363014525053738);
 	t1 = gettime_ns();
 
-	printf("%i tests passed in %.3fms, %.0fns per test\n", REPEATS*64, (t1-t0)/1000000., (t1-t0)/(REPEATS*64.));
+	printf("%i tests passed in %.3fms, %.0fns per test\n", REPEATS*65, (t1-t0)/1000000., (t1-t0)/(REPEATS*64.));
 	return 0;
 }

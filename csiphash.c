@@ -96,8 +96,8 @@ uint64_t siphashfinish (siphash *sh, const void *src, size_t src_sz) {
 }
 uint64_t siphash24(const void *src, size_t src_sz, const uint64_t key[2]) {
 	siphash sh;
+    const uint64_t *in = (uint64_t*)src;
 	siphashinit(&sh, src_sz, key);
-	const uint64_t *in = (uint64_t*)src;
 	while (src_sz >= 8) {
 		siphashadd64bits(&sh, (uint8_t*)in);
 		in += 1; src_sz -= 8;

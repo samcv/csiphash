@@ -10,7 +10,6 @@ uint64_t gettime_ns() {
 	return (uint64_t)tv.tv_sec * 1000000000ULL + tv.tv_usec * 1000ULL;
 }
 
-
 #define REPEATS 1
 
 uint64_t vectors[64] = {

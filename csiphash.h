@@ -43,7 +43,7 @@ uint64_t siphash24(const void *src, size_t src_sz, const uint64_t key[2]);
 #define MVM_HASH_FORCE_LITTLE_ENDIAN 1
 #if defined(MVM_HASH_FORCE_LITTLE_ENDIAN)
     #define MVM_MAYBE_TO_LITTLE_ENDIAN_64(x) MVM_TO_LITTLE_ENDIAN_64(x)
-    #define MVM_MAYBE_TO_LITTLE_ENDIAN_32(x) MVM_TO_LITTLE_ENDIAN_64(x)
+    #define MVM_MAYBE_TO_LITTLE_ENDIAN_32(x) MVM_TO_LITTLE_ENDIAN_32(x)
 #else
     #define MVM_MAYBE_TO_LITTLE_ENDIAN_64(x) ((uint64_t)(x))
     #define MVM_MAYBE_TO_LITTLE_ENDIAN_32(x) ((uint32_t)(x))

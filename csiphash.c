@@ -59,7 +59,8 @@ void siphashinit (siphash *sh, size_t src_sz, const char key_[16]) {
 	sh->v2 = k0 ^ 0x6c7967656e657261ULL;
 	sh->v3 = k1 ^ 0x7465646279746573ULL;
 }
-void siphashadd64bits (siphash *sh, const void *in) {
+void siphashadd64bits (siphash *sh, const void *src) {
+    const uint64_t *in = (uint64_t*)src;
 	uint64_t mi = MVM_TO_LITTLE_ENDIAN_64(*(uint64_t*)in);
 	sh->v3 ^= mi;
 	DOUBLE_ROUND(sh->v0,sh->v1,sh->v2,sh->v3);

@@ -8,7 +8,7 @@ struct siphash {
 };
 typedef struct siphash siphash;
 void siphashinit (siphash *sh, size_t src_sz, const char key[16]);
-void siphashadd64bits (siphash *sh, const void *in);
+void siphashadd64bits (siphash *sh, const void *src);
 uint64_t siphashfinish (siphash *sh, const void *src, size_t src_sz);
 uint64_t siphash24(const void *src, size_t src_sz, const char key[16]);
 #if defined(MVM_HASH_FORCE_LITTLE_ENDIAN)

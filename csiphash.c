@@ -1,5 +1,6 @@
 /* <MIT License>
- Copyright (c) 2013  Marek Majkowski <marek@popcount.org>
+	Copyright (c) 2013  Marek Majkowski <marek@popcount.org>
+	Copyright (c) 2018 Samantha McVey <samantham@posteo.net>
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -48,7 +49,8 @@
 	HALF_ROUND(v0,v1,v2,v3,13,16); \
 	HALF_ROUND(v2,v1,v0,v3,17,21);
 
-void siphashinit (siphash *sh, size_t src_sz, const uint64_t key[2]) {
+void siphashinit (siphash *sh, size_t src_sz, const uint8_t key_[2]) {
+	const uint64_t *key = (const uint64_t*)key_;
 	uint64_t k0 = MVM_TO_LITTLE_ENDIAN_64(key[0]);
 	uint64_t k1 = MVM_TO_LITTLE_ENDIAN_64(key[1]);
 	sh->b = (uint64_t)src_sz << 56;
@@ -58,10 +60,10 @@ void siphashinit (siphash *sh, size_t src_sz, const uint64_t key[2]) {
 	sh->v3 = k1 ^ 0x7465646279746573ULL;
 }
 void siphashadd64bits (siphash *sh, const void *in) {
-    uint64_t mi = MVM_TO_LITTLE_ENDIAN_64(*(uint64_t*)in);
-    sh->v3 ^= mi;
-    DOUBLE_ROUND(sh->v0,sh->v1,sh->v2,sh->v3);
-    sh->v0 ^= mi;
+	uint64_t mi = MVM_TO_LITTLE_ENDIAN_64(*(uint64_t*)in);
+	sh->v3 ^= mi;
+	DOUBLE_ROUND(sh->v0,sh->v1,sh->v2,sh->v3);
+	sh->v0 ^= mi;
 }
 uint64_t siphashfinish (siphash *sh, const void *src, size_t src_sz) {
 	const uint64_t *in = (uint64_t*)src;
@@ -94,7 +96,7 @@ uint64_t siphashfinish (siphash *sh, const void *src, size_t src_sz) {
 	DOUBLE_ROUND(sh->v0,sh->v1,sh->v2,sh->v3);
 	return (sh->v0 ^ sh->v1) ^ (sh->v2 ^ sh->v3);
 }
-uint64_t siphash24(const void *src, size_t src_sz, const uint64_t key[2]) {
+uint64_t siphash24(const void *src, size_t src_sz, const uint8_t key[16]) {
 	siphash sh;
 	siphashinit(&sh, src_sz, key);
 	const uint64_t *in = (uint64_t*)src;

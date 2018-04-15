@@ -11,22 +11,20 @@ void siphashinit (siphash *sh, size_t src_sz, const uint64_t key[2]);
 void siphashadd64bits (siphash *sh, const void *in);
 uint64_t siphashfinish (siphash *sh, const void *src, size_t src_sz);
 uint64_t siphash24(const void *src, size_t src_sz, const uint64_t key[2]);
-#if defined(MVM_HASH_FORCE_LITTLE_ENDIAN)
-    #if defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && \
-        __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-    #  define MVM_TO_LITTLE_ENDIAN_64(x) ((uint64_t)(x))
-    #  define MVM_TO_LITTLE_ENDIAN_32(x) ((uint32_t)(x))
-    #elif defined(_WIN32)
-    /* Windows is always little endian, unless you're on xbox360
-       http://msdn.microsoft.com/en-us/library/b0084kay(v=vs.80).aspx */
-    #  define MVM_TO_LITTLE_ENDIAN_64(x) ((uint64_t)(x))
-    #  define MVM_TO_LITTLE_ENDIAN_32(x) ((uint32_t)(x))
-    #elif defined(__APPLE__)
-    #  include <libkern/OSByteOrder.h>
-    #  define MVM_TO_LITTLE_ENDIAN_64(x) OSSwapLittleToHostInt64(x)
-    #  define MVM_TO_LITTLE_ENDIAN_32(x) OSSwapLittleToHostInt32(x)
-    #else
-
+#if defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && \
+    __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#  define MVM_TO_LITTLE_ENDIAN_64(x) ((uint64_t)(x))
+#  define MVM_TO_LITTLE_ENDIAN_32(x) ((uint32_t)(x))
+#elif defined(_WIN32)
+/* Windows is always little endian, unless you're on xbox360
+   http://msdn.microsoft.com/en-us/library/b0084kay(v=vs.80).aspx */
+#  define MVM_TO_LITTLE_ENDIAN_64(x) ((uint64_t)(x))
+#  define MVM_TO_LITTLE_ENDIAN_32(x) ((uint32_t)(x))
+#elif defined(__APPLE__)
+#  include <libkern/OSByteOrder.h>
+#  define MVM_TO_LITTLE_ENDIAN_64(x) OSSwapLittleToHostInt64(x)
+#  define MVM_TO_LITTLE_ENDIAN_32(x) OSSwapLittleToHostInt32(x)
+#else
     /* See: http://sourceforge.net/p/predef/wiki/Endianness/ */
     #  if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
     #    include <sys/endian.h>
@@ -41,9 +39,11 @@ uint64_t siphash24(const void *src, size_t src_sz, const uint64_t key[2]);
     #    define MVM_TO_LITTLE_ENDIAN_64(x) le64toh(x)
     #    define MVM_TO_LITTLE_ENDIAN_32(x) le32toh(x)
     #  endif
-
-    #endif
+#endif
+#if defined(MVM_HASH_FORCE_LITTLE_ENDIAN)
+    #define MVM_MAYBE_TO_LITTLE_ENDIAN_64(x) MVM_TO_LITTLE_ENDIAN_64(x)
+    #define MVM_MAYBE_TO_LITTLE_ENDIAN_32(x) MVM_TO_LITTLE_ENDIAN_64(x)
 #else
-    #define MVM_TO_LITTLE_ENDIAN_64(x) ((uint64_t)(x))
-    #define MVM_TO_LITTLE_ENDIAN_32(x) ((uint32_t)(x))
+    #define MVM_MAYBE_TO_LITTLE_ENDIAN_64(x) ((uint64_t)(x))
+    #define MVM_MAYBE_TO_LITTLE_ENDIAN_32(x) ((uint32_t)(x))
 #endif

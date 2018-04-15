@@ -47,11 +47,11 @@ int main() {
 	t0 = gettime_ns();
 	for (j=0; j<REPEATS; j++){
 		for (i=0; i<64; i++) {
-			assert(siphash24(plaintext, i, (uint64_t*)key) == vectors[i]);
+			assert(siphash24(plaintext, i, key) == vectors[i]);
 		}
 	}
-	printf("%lu\n", siphash24(Grapheme32, 9 * sizeof(uint32_t), (uint64_t*)key));
-	assert(siphash24(Grapheme32, 9 * sizeof(uint32_t), (uint64_t*)key) == 11812756193186055105LLU);
+	printf("%lu\n", siphash24(Grapheme32, 9 * sizeof(uint32_t), key));
+	assert(siphash24(Grapheme32, 9 * sizeof(uint32_t), key) == 11812756193186055105LLU);
 	t1 = gettime_ns();
 
 	printf("%i tests passed in %.3fms, %.0fns per test\n", REPEATS*65, (t1-t0)/1000000., (t1-t0)/(REPEATS*64.));

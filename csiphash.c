@@ -49,8 +49,8 @@
 	HALF_ROUND(v2,v1,v0,v3,17,21);
 
 void siphashinit (siphash *sh, size_t src_sz, const uint64_t key[2]) {
-	uint64_t k0 = _le64toh(key[0]);
-	uint64_t k1 = _le64toh(key[1]);
+	uint64_t k0 = MVM_TO_LITTLE_ENDIAN_64(key[0]);
+	uint64_t k1 = MVM_TO_LITTLE_ENDIAN_64(key[1]);
 	sh->b = (uint64_t)src_sz << 56;
 	sh->v0 = k0 ^ 0x736f6d6570736575ULL;
 	sh->v1 = k1 ^ 0x646f72616e646f6dULL;
@@ -58,7 +58,7 @@ void siphashinit (siphash *sh, size_t src_sz, const uint64_t key[2]) {
 	sh->v3 = k1 ^ 0x7465646279746573ULL;
 }
 void siphashadd64bits (siphash *sh, const void *in) {
-    uint64_t mi = _le64toh(*(uint64_t*)in);
+    uint64_t mi = MVM_TO_LITTLE_ENDIAN_64(*(uint64_t*)in);
     sh->v3 ^= mi;
     DOUBLE_ROUND(sh->v0,sh->v1,sh->v2,sh->v3);
     sh->v0 ^= mi;
@@ -85,7 +85,7 @@ uint64_t siphashfinish (siphash *sh, const void *src, size_t src_sz) {
 		/* Falls through */
 		case 1: pt[0] = m[0];
 	}
-	sh->b |= _le64toh(t);
+	sh->b |= MVM_TO_LITTLE_ENDIAN_64(t);
 	sh->v3 ^= sh->b;
 	DOUBLE_ROUND(sh->v0,sh->v1,sh->v2,sh->v3);
 	sh->v0 ^= sh->b;

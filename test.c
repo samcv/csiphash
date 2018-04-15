@@ -2,13 +2,13 @@
 #include <stdint.h>
 #include <assert.h>
 #include <sys/time.h>
+#define MVM_HASH_FORCE_LITTLE_ENDIAN 1
 #include "csiphash.h"
 uint64_t gettime_ns() {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	return (uint64_t)tv.tv_sec * 1000000000ULL + tv.tv_usec * 1000ULL;
 }
-
 
 
 #define REPEATS 1

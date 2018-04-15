@@ -8,7 +8,7 @@ uint64_t gettime_ns() {
 	gettimeofday(&tv, NULL);
 	return (uint64_t)tv.tv_sec * 1000000000ULL + tv.tv_usec * 1000ULL;
 }
-
+#define MVM_HASH_FORCE_LITTLE_ENDIAN 1
 
 
 #define REPEATS 1

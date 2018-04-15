@@ -75,17 +75,17 @@
 
 #include "csiphash.h"
 void siphashinit (unsigned long src_sz, const char key[16], siphash *sh) {
-    sh->_key = (uint64_t *)key;
-	sh->k0 = _le64toh(sh->_key[0]);
-	sh->k1 = _le64toh(sh->_key[1]);
+    const uint64_t *_key = (uint64_t *)key;
+	uint64_t k0 = _le64toh(_key[0]);
+	uint64_t k1 = _le64toh(_key[1]);
 	sh->b = (uint64_t)src_sz << 56;
-    sh->v0 = sh->k0 ^ 0x736f6d6570736575ULL;
-	sh->v1 = sh->k1 ^ 0x646f72616e646f6dULL;
-	sh->v2 = sh->k0 ^ 0x6c7967656e657261ULL;
-	sh->v3 = sh->k1 ^ 0x7465646279746573ULL;
+    sh->v0 = k0 ^ 0x736f6d6570736575ULL;
+	sh->v1 = k1 ^ 0x646f72616e646f6dULL;
+	sh->v2 = k0 ^ 0x6c7967656e657261ULL;
+	sh->v3 = k1 ^ 0x7465646279746573ULL;
 }
-void siphashadd64bits (siphash *sh, const uint64_t *in) {
-    uint64_t mi = _le64toh(*in);
+void siphashadd64bits (siphash *sh, const uint8_t *in) {
+    uint64_t mi = _le64toh(*(uint64_t*)in);
     sh->v3 ^= mi;
     DOUBLE_ROUND(sh->v0,sh->v1,sh->v2,sh->v3);
     sh->v0 ^= mi;
@@ -115,7 +115,7 @@ uint64_t siphash24(const void *src, unsigned long src_sz, const char key[16]) {
     siphashinit(src_sz, key, &sh);
 	const uint64_t *in = (uint64_t*)src;
 	while (src_sz >= 8) {
-		siphashadd64bits(&sh, in);
+		siphashadd64bits(&sh, (uint8_t*)in);
 		in += 1; src_sz -= 8;
 	}
 	return siphashfinish(&sh, in, src_sz);

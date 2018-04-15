@@ -36,7 +36,7 @@ int main() {
 	int i;
 	char key[16] = {0,1,2,3,4,5,6,7,8,9,0xa,0xb,0xc,0xd,0xe,0xf};
 	char plaintext[64];
-	uint32_t Grapheme32[9] = { 171, 72, 69, 76, 76, 79, 9829, 9826, 187  };
+	int32_t Grapheme32[9] = { 171, -72, 69, 76, 76, 79, 9829, 9826, 187  };
 	for (i = 0; i < 9; i++) {
 		Grapheme32[i] = MVM_TO_LITTLE_ENDIAN_32(Grapheme32[i]);
 	}
@@ -50,8 +50,7 @@ int main() {
 			assert(siphash24(plaintext, i, (uint64_t*)key) == vectors[i]);
 		}
 	}
-	printf("%lu\n", siphash24(Grapheme32, 9 * sizeof(uint32_t), (uint64_t*)key));
-	assert(siphash24(Grapheme32, 9 * sizeof(uint32_t), (uint64_t*)key) == 11812756193186055105LLU);
+	assert(siphash24(Grapheme32, 9 * sizeof(int32_t), (uint64_t*)key) == 4563223716124497198LLU);
 	t1 = gettime_ns();
 
 	printf("%i tests passed in %.3fms, %.0fns per test\n", REPEATS*65, (t1-t0)/1000000., (t1-t0)/(REPEATS*64.));

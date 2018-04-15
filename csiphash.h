@@ -8,6 +8,6 @@ struct siphash {
 };
 typedef struct siphash siphash;
 void siphashinit (siphash *sh, size_t src_sz, const uint64_t key[2]);
-void siphashadd64bits (siphash *sh, const uint8_t *in);
-uint64_t siphashfinish (siphash *sh, const uint8_t *src, size_t src_sz);
-uint64_t siphash24(const uint8_t *src, size_t src_sz, const uint64_t key[2]);
+void siphashadd64bits (siphash *sh, const void *in);
+uint64_t siphashfinish (siphash *sh, const void *src, size_t src_sz);
+uint64_t siphash24(const void *src, size_t src_sz, const uint64_t key[2]);

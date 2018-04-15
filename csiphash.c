@@ -85,13 +85,13 @@ void siphashinit (siphash *sh, size_t src_sz, const uint64_t key[2]) {
 	sh->v2 = k0 ^ 0x6c7967656e657261ULL;
 	sh->v3 = k1 ^ 0x7465646279746573ULL;
 }
-void siphashadd64bits (siphash *sh, const uint8_t *in) {
+void siphashadd64bits (siphash *sh, const void *in) {
     uint64_t mi = _le64toh(*(uint64_t*)in);
     sh->v3 ^= mi;
     DOUBLE_ROUND(sh->v0,sh->v1,sh->v2,sh->v3);
     sh->v0 ^= mi;
 }
-uint64_t siphashfinish (siphash *sh, const uint8_t *src, size_t src_sz) {
+uint64_t siphashfinish (siphash *sh, const void *src, size_t src_sz) {
 	const uint64_t *in = (uint64_t*)src;
 	uint64_t t  = 0;
 	uint8_t *pt = (uint8_t *)&t;
@@ -122,7 +122,7 @@ uint64_t siphashfinish (siphash *sh, const uint8_t *src, size_t src_sz) {
 	DOUBLE_ROUND(sh->v0,sh->v1,sh->v2,sh->v3);
 	return (sh->v0 ^ sh->v1) ^ (sh->v2 ^ sh->v3);
 }
-uint64_t siphash24(const uint8_t *src, size_t src_sz, const uint64_t key[2]) {
+uint64_t siphash24(const void *src, size_t src_sz, const uint64_t key[2]) {
 	siphash sh;
 	siphashinit(&sh, src_sz, key);
 	const uint64_t *in = (uint64_t*)src;

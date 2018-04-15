@@ -47,12 +47,12 @@ int testmvm (void) {
 	int32_t Grapheme32[9] = { 171, -72, 69, 76, 76, 79, 9829, 9826, 187  };
 	siphashinit(&sh, s_len * sizeof(MVMGrapheme32), key);
 	for (i = 0; i + 1 < s_len;) {
-		gv.graphs[0] = MVM_MAYBE_TO_LITTLE_ENDIAN_32(Grapheme32[i++]);
-		gv.graphs[1] = MVM_MAYBE_TO_LITTLE_ENDIAN_32(Grapheme32[i++]);
+		gv.graphs[0] = MVM_TO_LITTLE_ENDIAN_32(Grapheme32[i++]);
+		gv.graphs[1] = MVM_TO_LITTLE_ENDIAN_32(Grapheme32[i++]);
 		siphashadd64bits(&sh, gv.bytes);
 	}
 	if (i < s_len) {
-		gv.graphs[0] = MVM_MAYBE_TO_LITTLE_ENDIAN_32(Grapheme32[i]);
+		gv.graphs[0] = MVM_TO_LITTLE_ENDIAN_32(Grapheme32[i]);
 		hash = siphashfinish(&sh, &(gv.graphs), sizeof(MVMGrapheme32));
 	}
 	else {

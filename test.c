@@ -38,8 +38,10 @@ int main() {
 	char key[16] = {0,1,2,3,4,5,6,7,8,9,0xa,0xb,0xc,0xd,0xe,0xf};
 	char plaintext[64];
 	uint32_t Grapheme32[9] = { 171, 72, 69, 76, 76, 79, 9829, 9826, 187  };
+	for (i = 0; i < 9; i++) {
+		Grapheme32[i] = MVM_TO_LITTLE_ENDIAN_32(Grapheme32[i]);
+	}
 	for (i=0; i<64; i++) plaintext[i] = i;
-
 
 	int j;
 	uint64_t t0, t1;

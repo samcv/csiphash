@@ -78,6 +78,9 @@ typedef struct siphash siphash;
     #define MVM_MAYBE_TO_LITTLE_ENDIAN_64(x) ((uint64_t)(x))
     #define MVM_MAYBE_TO_LITTLE_ENDIAN_32(x) ((uint32_t)(x))
 #endif
+#ifndef MVM_CAN_UNALIGNED_INT64
+    #include <string.h>
+#endif
 #define ROTATE(x, b) (uint64_t)( ((x) << (b)) | ( (x) >> (64 - (b))) )
 
 #define HALF_ROUND(a,b,c,d,s,t) \
@@ -119,8 +122,12 @@ MVM_STATIC_INLINE uint64_t siphashfinish_last_part (siphash *sh, uint64_t t) {
 }
 MVM_STATIC_INLINE uint64_t siphashfinish_32bits (siphash *sh, const uint32_t src) {
 	uint64_t t  = 0;
-    uint32_t *pt = (uint32_t*)&t;
-    *((uint32_t*)pt) = src;
+#ifdef MVM_CAN_UNALIGNED_INT64
+	uint32_t *pt = (uint32_t*)&t;
+	*((uint32_t*)pt) = src;
+#else
+	memcpy(&t, &src, sizeof(uint32_t));
+#endif
 	return siphashfinish_last_part(sh, t);
 }
 MVM_STATIC_INLINE uint64_t siphashfinish (siphash *sh, const uint8_t *src, size_t src_sz) {
@@ -149,11 +156,22 @@ MVM_STATIC_INLINE uint64_t siphashfinish (siphash *sh, const uint8_t *src, size_
 }
 MVM_STATIC_INLINE uint64_t siphash24(const uint8_t *src, size_t src_sz, const uint64_t key[2]) {
 	siphash sh;
-    const uint64_t *in = (uint64_t*)src;
+#ifdef MVM_CAN_UNALIGNED_INT64
+	const uint64_t *in = (uint64_t*)src;
 	siphashinit(&sh, src_sz, key);
 	while (src_sz >= 8) {
 		siphashadd64bits(&sh, *in);
 		in += 1; src_sz -= 8;
 	}
+#else
+	const uint8_t *in = src;
+	siphashinit(&sh, src_sz, key);
+	while (src_sz >= 8) {
+		uint64_t in_64;
+		memcpy(&in_64, in, sizeof(uint64_t));
+		siphashadd64bits(&sh, in_64);
+		in += 8; src_sz -= 8;
+	}
+#endif
 	return siphashfinish(&sh, (uint8_t *)in, src_sz);
 }

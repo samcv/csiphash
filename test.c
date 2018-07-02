@@ -33,8 +33,10 @@ uint64_t vectors[64] = {
 #define MVMGrapheme32 int32_t
 #define MVMint32 int32_t
 #define MVMuint64 uint64_t
+#define MVMuint8 uint8_t
 typedef union {
 	MVMint32 graphs[2];
+	MVMuint8 bytes[4];
 	uint64_t u64;
 } MVMJenHashGraphemeView;
 int testmvm (void) {
@@ -45,7 +47,7 @@ int testmvm (void) {
 	char key[16] = {0,1,2,3,4,5,6,7,8,9,0xa,0xb,0xc,0xd,0xe,0xf};
 	size_t s_len = 9;
 	int32_t Grapheme32[9] = { 171, -72, 69, 76, 76, 79, 9829, 9826, 187  };
-	siphashinit(&sh, s_len * sizeof(MVMGrapheme32), key);
+	siphashinit(&sh, s_len * sizeof(MVMGrapheme32), (uint64_t*)key);
 	for (i = 0; i + 1 < s_len;) {
 		gv.graphs[0] = MVM_TO_LITTLE_ENDIAN_32(Grapheme32[i++]);
 		gv.graphs[1] = MVM_TO_LITTLE_ENDIAN_32(Grapheme32[i++]);
@@ -53,7 +55,7 @@ int testmvm (void) {
 	}
 	if (i < s_len) {
 		gv.graphs[0] = MVM_TO_LITTLE_ENDIAN_32(Grapheme32[i]);
-		hash = siphashfinish(&sh, &(gv.graphs), sizeof(MVMGrapheme32));
+		hash = siphashfinish(&sh, gv.bytes, sizeof(MVMGrapheme32));
 	}
 	else {
 		hash = siphashfinish(&sh, NULL, 0);
@@ -64,7 +66,7 @@ int testmvm (void) {
 int main() {
 	int i;
 	char key[16] = {0,1,2,3,4,5,6,7,8,9,0xa,0xb,0xc,0xd,0xe,0xf};
-	char plaintext[64];
+	uint8_t plaintext[64];
 	int32_t Grapheme32[9] = { 171, -72, 69, 76, 76, 79, 9829, 9826, 187  };
 	for (i = 0; i < 9; i++) {
 		Grapheme32[i] = MVM_TO_LITTLE_ENDIAN_32(Grapheme32[i]);
@@ -79,7 +81,7 @@ int main() {
 			assert(siphash24(plaintext, i, (uint64_t*)key) == vectors[i]);
 		}
 	}
-	assert(siphash24(Grapheme32, 9 * sizeof(int32_t), (uint64_t*)key) == 4563223716124497198LLU);
+	assert(siphash24((uint8_t*)Grapheme32, 9 * sizeof(int32_t), (uint64_t*)key) == 4563223716124497198LLU);
 	testmvm();
 	t1 = gettime_ns();
 

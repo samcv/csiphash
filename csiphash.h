@@ -102,11 +102,7 @@ MVM_STATIC_INLINE void siphashinit (siphash *sh, size_t src_sz, const uint64_t k
 	sh->v3 = k1 ^ 0x7465646279746573ULL;
 }
 MVM_STATIC_INLINE void siphashadd64bits (siphash *sh, const uint64_t in) {
-#ifdef MVM_HASH_FORCE_LITTLE_ENDIAN
     const uint64_t mi = MVM_MAYBE_TO_LITTLE_ENDIAN_64(in);
-#else
-    #define mi in
-#endif
     sh->v3 ^= mi;
     DOUBLE_ROUND(sh->v0,sh->v1,sh->v2,sh->v3);
     sh->v0 ^= mi;
@@ -121,9 +117,10 @@ MVM_STATIC_INLINE uint64_t siphashfinish_last_part (siphash *sh, uint64_t t) {
 	DOUBLE_ROUND(sh->v0,sh->v1,sh->v2,sh->v3);
 	return (sh->v0 ^ sh->v1) ^ (sh->v2 ^ sh->v3);
 }
-MVM_STATIC_INLINE uint64_t siphashfinish_32bits (siphash *sh, const uint32_t src, size_t src_sz) {
+MVM_STATIC_INLINE uint64_t siphashfinish_32bits (siphash *sh, const uint32_t src) {
 	uint64_t t  = 0;
-    *((uint32_t*)&t) = src;
+    uint32_t *pt = (uint32_t*)&t;
+    *((uint32_t*)pt) = src;
 	return siphashfinish_last_part(sh, t);
 }
 MVM_STATIC_INLINE uint64_t siphashfinish (siphash *sh, const uint8_t *src, size_t src_sz) {
@@ -150,7 +147,7 @@ MVM_STATIC_INLINE uint64_t siphashfinish (siphash *sh, const uint8_t *src, size_
 	}
 	return siphashfinish_last_part(sh, t);
 }
-MVM_STATIC_INLINE uint64_t siphash24(const uint32_t *src, size_t src_sz, const uint64_t key[2]) {
+MVM_STATIC_INLINE uint64_t siphash24(const uint8_t *src, size_t src_sz, const uint64_t key[2]) {
 	siphash sh;
     const uint64_t *in = (uint64_t*)src;
 	siphashinit(&sh, src_sz, key);

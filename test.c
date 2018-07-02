@@ -35,7 +35,7 @@ uint64_t vectors[64] = {
 #define MVMuint64 uint64_t
 typedef union {
 	MVMint32 graphs[2];
-	uint8_t bytes[16];
+	uint64_t u64;
 } MVMJenHashGraphemeView;
 int testmvm (void) {
 	size_t i;
@@ -49,7 +49,7 @@ int testmvm (void) {
 	for (i = 0; i + 1 < s_len;) {
 		gv.graphs[0] = MVM_TO_LITTLE_ENDIAN_32(Grapheme32[i++]);
 		gv.graphs[1] = MVM_TO_LITTLE_ENDIAN_32(Grapheme32[i++]);
-		siphashadd64bits(&sh, gv.bytes);
+		siphashadd64bits(&sh, gv.u64);
 	}
 	if (i < s_len) {
 		gv.graphs[0] = MVM_TO_LITTLE_ENDIAN_32(Grapheme32[i]);

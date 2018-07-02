@@ -1,4 +1,36 @@
 #include <stddef.h>
+/* <MIT License>
+ Copyright (c) 2013  Marek Majkowski <marek@popcount.org>
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ </MIT License>
+
+ Original location:
+        https://github.com/majek/csiphash/
+
+ Solution inspired by code from:
+        Samuel Neves (supercop/crypto_auth/siphash24/little)
+        djb (supercop/crypto_auth/siphash24/little2)
+        Jean-Philippe Aumasson (https://131002.net/siphash/siphash24.c)
+
+ Modifications for MoarVM by Samantha McVey
+*/
 #ifndef MVM_STATIC_INLINE
 #define MVM_STATIC_INLINE static
 #endif
@@ -69,8 +101,12 @@ MVM_STATIC_INLINE void siphashinit (siphash *sh, size_t src_sz, const uint64_t k
 	sh->v2 = k0 ^ 0x6c7967656e657261ULL;
 	sh->v3 = k1 ^ 0x7465646279746573ULL;
 }
-MVM_STATIC_INLINE void siphashadd64bits (siphash *sh, const uint32_t *in) {
-    const uint64_t mi = MVM_MAYBE_TO_LITTLE_ENDIAN_64(*(uint64_t*)in);
+MVM_STATIC_INLINE void siphashadd64bits (siphash *sh, const uint64_t in) {
+#ifdef MVM_HASH_FORCE_LITTLE_ENDIAN
+    const uint64_t mi = MVM_MAYBE_TO_LITTLE_ENDIAN_64(in);
+#else
+    #define mi in
+#endif
     sh->v3 ^= mi;
     DOUBLE_ROUND(sh->v0,sh->v1,sh->v2,sh->v3);
     sh->v0 ^= mi;
@@ -119,7 +155,7 @@ MVM_STATIC_INLINE uint64_t siphash24(const uint32_t *src, size_t src_sz, const u
     const uint64_t *in = (uint64_t*)src;
 	siphashinit(&sh, src_sz, key);
 	while (src_sz >= 8) {
-		siphashadd64bits(&sh, (uint8_t*)in);
+		siphashadd64bits(&sh, *in);
 		in += 1; src_sz -= 8;
 	}
 	return siphashfinish(&sh, (uint8_t *)in, src_sz);
